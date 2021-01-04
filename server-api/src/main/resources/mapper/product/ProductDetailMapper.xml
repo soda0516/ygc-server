@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bin.serverapi.product.mapper.ProductDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bin.serverapi.product.entity.ProductDetail">
+        <id column="id" property="id" />
+        <result column="category_id" property="categoryId" />
+        <result column="category_name" property="categoryName" />
+        <result column="description_id" property="descriptionId" />
+        <result column="description_name" property="descriptionName" />
+        <result column="model_id" property="modelId" />
+        <result column="model_name" property="modelName" />
+        <result column="specification_id" property="specificationId" />
+        <result column="specification_name" property="specificationName" />
+        <result column="subject_id" property="subjectId" />
+        <result column="subject_name" property="subjectName" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="updatre_time" property="updatreTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, category_id, category_name, description_id, description_name, model_id, model_name, specification_id, specification_name, subject_id, subject_name, remark, create_time, updatre_time
+    </sql>
+
+</mapper>

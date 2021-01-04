@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bin.serverapi.product.mapper.ProductCategoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bin.serverapi.product.entity.ProductCategory">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <resultMap id="WithChildrenResultMap" type="com.bin.serverapi.product.vo.detail.ProductCategoryVo">
+        <id column="category_id" property="value" />
+        <result column="category_name" property="label" />
+        <collection property="children" javaType="java.util.ArrayList" ofType="com.bin.serverapi.product.vo.detail.ProductDetailVo">
+            <id column="detail_id" property="value" />
+            <result column="detail_label" property="label" />
+        </collection>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, create_time, update_time
+    </sql>
+    <select id="listAllWithChildren" resultMap="WithChildrenResultMap">
+SELECT product_category.id as category_id, product_category.name as category_name,product_detail.id as detail_id,
+CONCAT(product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark)
+as detail_label FROM product_detail LEFT JOIN product_category on product_detail.category_id = product_category.id
+    </select>
+
+</mapper>

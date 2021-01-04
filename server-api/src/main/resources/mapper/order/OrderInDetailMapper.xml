@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bin.serverapi.order.mapper.OrderInDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bin.serverapi.order.entity.OrderInDetail">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="order_id" property="orderId" />
+        <result column="product_id" property="productId" />
+        <result column="request_num" property="requestNum" />
+        <result column="actual_num" property="actualNum" />
+        <result column="remark" property="remark" />
+        <result column="extra_remark" property="extraRemark" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="total_fee" property="totalFee" />
+        <result column="store_id" property="storeId" />
+        <result column="order_type" property="orderType" />
+        <result column="subject_id" property="subjectId" />
+        <result column="order_date" property="orderDate" />
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="VoResultMap" type="com.bin.serverapi.order.vo.OrderInDetailVo">
+        <id column="id" property="id" />
+        <result column="order_id" property="orderId" />
+        <result column="product_category_id" property="productCategoryId"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_id" property="productId" />
+        <result column="request_num" property="requestNum" />
+        <result column="actual_num" property="actualNum" />
+        <result column="remark" property="remark" />
+        <result column="extra_remark" property="extraRemark" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="total_fee" property="totalFee" />
+        <result column="store_id" property="storeId" />
+        <result column="order_type" property="orderType" />
+        <result column="subject_id" property="subjectId" />
+        <result column="order_date" property="orderDate" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        id, order_id, product_id, request_num, actual_num, remark, extra_remark, unit_price, total_fee, store_id, order_type, subject_id, order_date
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Vo_Column_List">
+        order_in_detail.id as id, order_id,
+        CONCAT(product_detail.category_name,'/', product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
+        product_category_id,product_id, request_num, actual_num, order_in_detail.remark as remark, extra_remark, unit_price, total_fee, store_id, order_type, subject_id, order_date
+    </sql>
+    <sql id="Detail_Order_List">
+order_in.id as order_id,order_in.order_date as order_order_date,order_in.region_id as order_region_id,
+CONCAT(product_detail.category_name,'/', product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
+order_in.center_id as order_center_id,order_in.station_id as order_station_id,order_in.order_type as order_order_type,
+order_in.oper_item as order_oper_item,order_in.well_name as order_well_name,order_in.store_id as order_store_id,
+order_in.subject_type as order_subject_type,order_in.remark as order_remark,order_in_detail.id as detail_id, order_in_detail.order_id as detail_order_id,
+order_in_detail.product_id as detail_product_id, order_in_detail.request_num as detail_request_num, order_in_detail.actual_num as detail_actual_num,
+order_in_detail.remark as detail_remark, order_in_detail.extra_remark as detail_extra_remark, order_in_detail.unit_price as detail_unit_price,
+order_in_detail.total_fee as detail_total_fee, order_in_detail.store_id as detail_store_id, order_in_detail.order_type as detail_order_type,
+order_in_detail.subject_id as detail_subject_id, order_in_detail.order_date as detail_order_date
+    </sql>
+    <select id="selectBasicList" resultMap="VoResultMap" resultType="arraylist">
+        SELECT
+        <include refid="Vo_Column_List"></include>
+        FROM
+        order_in_detail
+        LEFT JOIN product_detail on order_in_detail.product_id = product_detail.id
+        <where>
+        order_in_detail.order_id = #{qid}
+        </where>
+    </select>
+    <select id="selectWithOrderIn" resultType="java.util.Map">
+        SELECT <include refid="Detail_Order_List"/>
+        FROM order_in_detail
+        LEFT JOIN order_in on order_in_detail.order_id = order_in.id
+        LEFT JOIN product_detail on order_in_detail.product_id = product_detail.id
+        <where>
+            <if test= "searchData.startDate != null and searchData.startDate != ''">
+                and order_in.order_date &gt;= #{searchData.startDate}
+            </if>
+            <if test= "searchData.endDate != null and searchData.endDate != ''">
+                and order_in.order_date &lt;= #{searchData.endDate}
+            </if>
+            <if test= "searchData.selectedRegion != null and searchData.selectedRegion != ''">
+                and order_in.region_id = #{searchData.selectedRegion}
+            </if>
+            <if test= "searchData.selectedSubject != null and searchData.selectedSubject != ''">
+                and order_in.subject_type = #{searchData.selectedSubject}
+            </if>
+            <if test= "searchData.orderType != null and searchData.orderType != ''">
+                and order_in.order_type = #{searchData.orderType}
+            </if>
+            <if test= "searchData.wellName != null and searchData.wellName != ''">
+                and order_in.well_name like concat(concat('%',#{searchData.wellName}),'%')
+            </if>
+            <if test= "searchData.operItem != null and searchData.operItem != ''">
+                and order_in.oper_item like concat(concat('%',#{searchData.operItem}),'%')
+            </if>
+            <if test= "searchData.remark != null and searchData.remark != ''">
+                and order_in.remark like concat(concat('%',#{searchData.remark}),'%')
+            </if>
+            <if test= "searchData.productDetailIds != null and searchData.productDetailIds != '' and searchData.productDetailIds.size > 0 ">
+                and order_in_detail.product_id in
+                <foreach item="item" index="index" collection="searchData.productDetailIds" open="("
+                         separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by order_in_detail.order_id desc ,order_in_detail.order_date desc
+    </select>
+</mapper>

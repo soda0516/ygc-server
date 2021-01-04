@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bin.serverapi.order.mapper.OrderOutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bin.serverapi.order.entity.OrderOut">
+        <id column="id" property="id" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+        <result column="well_name" property="wellName" />
+        <result column="well_id" property="wellId" />
+        <result column="region_id" property="regionId" />
+        <result column="region_name" property="regionName" />
+        <result column="center_id" property="centerId" />
+        <result column="center_name" property="centerName" />
+        <result column="station_id" property="stationId" />
+        <result column="station_name" property="stationName" />
+        <result column="oper_item" property="operItem" />
+        <result column="remark" property="remark" />
+        <result column="store_id" property="storeId" />
+        <result column="order_type" property="orderType" />
+        <result column="subject_type" property="subjectType" />
+        <result column="curator_id" property="curatorId" />
+        <result column="checker_id" property="checkerId" />
+        <result column="order_date" property="orderDate" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        id, well_name, well_id, region_id, region_name, center_id, center_name, station_id, station_name, oper_item, remark, store_id, order_type, subject_type, curator_id, checker_id, order_date
+    </sql>
+
+</mapper>
