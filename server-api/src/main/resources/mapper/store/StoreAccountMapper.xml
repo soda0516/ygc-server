@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bin.serverapi.store.mapper.StoreAccountMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bin.serverapi.store.entity.StoreAccount">
+        <id column="id" property="id" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+        <result column="product_detail_id" property="productDetailId" />
+        <result column="subject_id" property="subjectId" />
+        <result column="store_id" property="storeId" />
+        <result column="account_date" property="accountDate" />
+        <result column="take_user" property="takeUser" />
+    </resultMap>
+    <resultMap id="StoreAccountSetVoResultMap" type="com.bin.serverapi.store.bo.StoreAccountSetVo">
+        <id column="account_date" property="accountDate" />
+        <result column="product_id" property="productId" />
+        <result column="product_name" property="productName" />
+        <result column="subject_num_one" property="subjectNumOne" />
+        <result column="subject_num_two" property="subjectNumTwo" />
+        <result column="subject_num_three" property="subjectNumThree" />
+        <result column="subject_num_four" property="subjectNumFour" />
+        <result column="subject_num_five" property="subjectNumFive" />
+        <result column="store_id" property="storeId" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        id, product_detail_id, subject_id, store_id, account_date, take_user
+    </sql>
+    <select id="listStoreAccountSetVoByDateStoreId" parameterType="com.bin.serverapi.store.bo.StoreAccountSetVo" resultMap="StoreAccountSetVoResultMap">
+        SELECT store_account.account_date,
+        store_account.product_detail_id as product_id,
+        CONCAT(product_detail.category_name,'/', product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
+        sum(case when store_account.subject_id = 1 then store_num else 0 end) as subject_num_one,
+        sum(case when store_account.subject_id = 2 then store_num else 0 end) as subject_num_two,
+        sum(case when store_account.subject_id = 3 then store_num else 0 end) as subject_num_three,
+        sum(case when store_account.subject_id = 4 then store_num else 0 end) as subject_num_four,
+        sum(case when store_account.subject_id = 5 then store_num else 0 end) as subject_num_five,
+        store_account.store_id as store_id
+        FROM store_account LEFT JOIN product_detail on store_account.product_detail_id = product_detail.id
+        <where>${ew.sqlSegment}</where>
+        GROUP BY store_account.product_detail_id
+    </select>
+<!--    ${ew.customSqlSegment}-->
+
+
+</mapper>

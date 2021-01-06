@@ -16,7 +16,8 @@ import org.springframework.context.annotation.Bean;
 @MapperScan(value = {
         "com.bin.serverapi.product.mapper",
         "com.bin.serverapi.order.mapper",
-        "com.bin.serverapi.area.mapper"})
+        "com.bin.serverapi.area.mapper",
+        "com.bin.serverapi.store.mapper"})
 public class ServerApiApplication {
 
     public static void main(String[] args) {
