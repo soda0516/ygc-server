@@ -27,6 +27,7 @@ public class OrderInDetailController {
 
     @GetMapping(value = "/page/detail")
     public ResponseModel<IPage<Map<String,Object>>> pageWithDetail(
+            @RequestParam("today") Boolean today,
             @RequestParam("searchData") String searchData,
             @RequestParam("currentPage") Integer currentPage,
             @RequestParam("pages") Integer pages){
@@ -36,7 +37,11 @@ public class OrderInDetailController {
         IPage<Map<String,Object>> page = new Page<>();
         page.setCurrent(currentPage);
         page.setSize(pages);
-        return ResponseBuilder.success(orderInDetailService.pageWithOrderIn(page,orderInOutSearchDataBo));
+        if (today) {
+            return ResponseBuilder.success(orderInDetailService.pageWithOrderInToday(page));
+        }else {
+            return ResponseBuilder.success(orderInDetailService.pageWithOrderIn(page,orderInOutSearchDataBo));
+        }
     }
 
     /**

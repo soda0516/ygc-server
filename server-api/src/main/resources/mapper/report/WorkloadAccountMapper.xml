@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bin.serverapi.report.mapper.WorkloadAccountMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bin.serverapi.report.vo.WorkloadAccountVo">
+        <result column="workload_one" property="workloadOne" />
+        <result column="workload_two" property="workloadTwo" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        workload_one, workload_two
+    </sql>
+    <select id="selectWorkloadInNum" resultType="com.bin.serverapi.report.vo.WorkloadAccountVo">
+        SELECT SUM(CASE order_in_detail.product_category_id WHEN 14 THEN order_in_detail.actual_num ELSE 0 END) as workload_one,SUM(CASE order_in_detail.product_category_id WHEN 15 THEN order_in_detail.actual_num ELSE 0 END) as workload_two
+        FROM order_in_detail
+        <where>
+            <if test= "searchData.storeId != null and searchData.storeId != '' and searchData.storeId > 0">
+                and order_in_detail.store_id = #{searchData.storeId}
+            </if>
+            <if test= "searchData.startDate != null ">
+                and order_in_detail.order_date &gt;= #{searchData.startDate}
+            </if>
+            <if test= "searchData.endDate != null ">
+                and order_in_detail.order_date &lt;= #{searchData.endDate}
+            </if>
+<!--            <if test= "searchData.storeIdList != null and searchData.storeIdList != '' and searchData.storeIdList.size > 0 and searchData.storeId &lt;= 0">-->
+<!--                and order_in_detail.store_id in-->
+<!--                <foreach item="item" index="index" collection="searchData.storeIdList" open="("-->
+<!--                         separator="," close=")">-->
+<!--                    #{item}-->
+<!--                </foreach>-->
+<!--            </if>-->
+        </where>
+    </select>
+    <select id="selectWorkloadOutNum" resultType="com.bin.serverapi.report.vo.WorkloadAccountVo">
+        SELECT SUM(CASE order_out_detail.product_category_id WHEN 14 THEN order_out_detail.actual_num ELSE 0 END) as workload_one,SUM(CASE order_out_detail.product_category_id WHEN 15 THEN order_out_detail.actual_num ELSE 0 END) as workload_two
+        FROM order_out_detail
+        <where>
+            <if test= "searchData.storeId != null and searchData.storeId != '' and searchData.storeId > 0">
+                and order_out_detail.store_id = #{searchData.storeId}
+            </if>
+            <if test= "searchData.startDate != null ">
+                and order_out_detail.order_date &gt;= #{searchData.startDate}
+            </if>
+            <if test= "searchData.endDate != null ">
+                and order_out_detail.order_date &lt;= #{searchData.endDate}
+            </if>
+<!--            <if test= "searchData.storeIdList != null and searchData.storeIdList != '' and searchData.storeIdList.size > 0 and searchData.storeId &lt;= 0">-->
+<!--                and order_out_detail.store_id in-->
+<!--                <foreach item="item" index="index" collection="searchData.storeIdList" open="("-->
+<!--                         separator="," close=")">-->
+<!--                    #{item}-->
+<!--                </foreach>-->
+<!--            </if>-->
+        </where>
+    </select>
+    <select id="selectWorkloadCheckNum" resultType="com.bin.serverapi.report.vo.WorkloadAccountVo">
+        SELECT SUM(CASE order_internal_detail.product_category_id WHEN 14 THEN order_internal_detail.actual_num ELSE 0 END) as workload_one,SUM(CASE order_internal_detail.product_category_id WHEN 15 THEN order_internal_detail.actual_num ELSE 0 END) as workload_two
+        FROM order_internal_detail WHERE order_internal_detail.oper_type = 3 AND order_internal_detail.add_subject != 5
+    </select>
+    <select id="selectWorkloadCheckNoUserNum" resultType="com.bin.serverapi.report.vo.WorkloadAccountVo">
+        SELECT SUM(CASE order_internal_detail.product_category_id WHEN 14 THEN order_internal_detail.actual_num ELSE 0 END) as workload_one,SUM(CASE order_internal_detail.product_category_id WHEN 15 THEN order_internal_detail.actual_num ELSE 0 END) as workload_two
+        FROM order_internal_detail WHERE order_internal_detail.oper_type = 3 AND order_internal_detail.add_subject = 5
+    </select>
+    <select id="selectWorkloadWellCount" resultType="com.bin.serverapi.report.vo.WorkloadAccountVo">
+         SELECT
+         (SELECT COUNT(*) FROM (SELECT MAX(id) FROM order_in
+        <where>
+            <if test= "searchData.storeId != null and searchData.storeId != '' and searchData.storeId > 0">
+                and order_in.store_id = #{searchData.storeId}
+            </if>
+            <if test= "searchData.startDate != null ">
+                and order_in.order_date &gt;= #{searchData.startDate}
+            </if>
+            <if test= "searchData.endDate != null ">
+                and order_in.order_date &lt;= #{searchData.endDate}
+            </if>
+<!--            <if test= "searchData.storeIdList != null and searchData.storeIdList != '' and searchData.storeIdList.size > 0 and searchData.storeId &lt;= 0">-->
+<!--                and order_in.store_id in-->
+<!--                <foreach item="item" index="index" collection="searchData.storeIdList" open="("-->
+<!--                         separator="," close=")">-->
+<!--                    #{item}-->
+<!--                </foreach>-->
+<!--            </if>-->
+        </where>
+         GROUP BY order_date,order_in.well_name) as t) as workload_one,
+         (SELECT COUNT(*) FROM (SELECT MAX(id) FROM order_out
+        <where>
+            <if test= "searchData.storeId != null and searchData.storeId != '' and searchData.storeId > 0">
+                and order_out.store_id = #{searchData.storeId}
+            </if>
+            <if test= "searchData.startDate != null ">
+                and order_out.order_date &gt;= #{searchData.startDate}
+            </if>
+            <if test= "searchData.endDate != null ">
+                and order_out.order_date &lt;= #{searchData.endDate}
+            </if>
+<!--            <if test= "searchData.storeIdList != null and searchData.storeIdList != '' and searchData.storeIdList.size > 0 and searchData.storeId &lt;= 0">-->
+<!--                and order_out.store_id in-->
+<!--                <foreach item="item" index="index" collection="searchData.storeIdList" open="("-->
+<!--                         separator="," close=")">-->
+<!--                    #{item}-->
+<!--                </foreach>-->
+<!--            </if>-->
+        </where>
+          GROUP BY order_date,order_out.well_name) as t) as workload_two
+    </select>
+</mapper>

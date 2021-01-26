@@ -41,7 +41,7 @@ public class OrderCommonsConstant {
         operTypeBo2.setLabel("上井发出");
         OrderOperTypeBo operTypeBo3 = new OrderOperTypeBo();
         operTypeBo3.setValue(3);
-        operTypeBo3.setLabel("场地分拣");
+        operTypeBo3.setLabel("场地分检");
         OrderOperTypeBo operTypeBo4 = new OrderOperTypeBo();
         operTypeBo4.setValue(4);
         operTypeBo4.setLabel("队间转移");
@@ -51,12 +51,16 @@ public class OrderCommonsConstant {
         OrderOperTypeBo operTypeBo6 = new OrderOperTypeBo();
         operTypeBo6.setValue(6);
         operTypeBo6.setLabel("报废处理");
+//        OrderOperTypeBo operTypeBo7 = new OrderOperTypeBo();
+//        operTypeBo7.setValue(7);
+//        operTypeBo7.setLabel("其他报废");
         operTypeBoList.add(operTypeBo1);
         operTypeBoList.add(operTypeBo2);
         operTypeBoList.add(operTypeBo3);
         operTypeBoList.add(operTypeBo4);
         operTypeBoList.add(operTypeBo5);
         operTypeBoList.add(operTypeBo6);
+//        operTypeBoList.add(operTypeBo7);
     }
     public static List<OrderTypeBo> OrderTypeList(){
         return orderTypeBoList;

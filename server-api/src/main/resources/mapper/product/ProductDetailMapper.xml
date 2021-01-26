@@ -13,16 +13,35 @@
         <result column="model_name" property="modelName" />
         <result column="specification_id" property="specificationId" />
         <result column="specification_name" property="specificationName" />
-        <result column="subject_id" property="subjectId" />
-        <result column="subject_name" property="subjectName" />
         <result column="remark" property="remark" />
         <result column="create_time" property="createTime" />
-        <result column="updatre_time" property="updatreTime" />
+        <result column="updatre_time" property="updateTime" />
+    </resultMap>
+    <!-- 用来显示库存信息的表 -->
+    <resultMap id="SimpleResultMap" type="com.bin.serverapi.report.vo.ReportStoreAccountVo">
+        <result column="category_id" property="productCategoryId" />
+        <result column="model_id" property="productModelId" />
+        <result column="product_detail_id" property="productDetailId" />
+        <result column="subject1_num" property="subject1Num" />
+        <result column="subject2_num" property="subject2Num" />
+        <result column="subject3_num" property="subject3Num" />
+        <result column="subject4_num" property="subject4Num" />
+        <result column="subject5_num" property="subject5Num" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, category_id, category_name, description_id, description_name, model_id, model_name, specification_id, specification_name, subject_id, subject_name, remark, create_time, updatre_time
     </sql>
+    <sql id="Simple_Column_List">
+        category_id,model_id,product_detail.id as product_detail_id,
+        CONCAT(product_detail.category_name,'/', product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
+        '' as subject1_num,'' as subject2_num,'' as subject3_num,'' as subject4_num,'' as subject5_num
+    </sql>
 
+    <select id="selectAllForStoreAccountVo" resultMap="SimpleResultMap">
+        select
+        <include refid="Simple_Column_List"/>
+        FROM product_detail order by product_detail.category_id asc
+    </select>
 </mapper>

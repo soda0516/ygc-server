@@ -14,8 +14,8 @@ logback:
   logDir: log/dev
 logging:
   level:
-    com.fengwenyi.mybatis_plus_example.service.impl: info
-    com.fengwenyi.mybatis_plus_example.controller: info
+    com.fengwenyi.mybatis_plus_example.service.impl: debug
+    com.fengwenyi.mybatis_plus_example.controller: debug
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

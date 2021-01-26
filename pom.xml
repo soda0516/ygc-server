@@ -9,6 +9,8 @@
     <modules>
         <module>server-api</module>
         <module>commons-web</module>
+        <module>commons-user</module>
+<!--        <module>spring-boot-user</module>-->
 <!--        <module>core</module>-->
 <!--        <module>user</module>-->
 <!--        <module>apply</module>-->

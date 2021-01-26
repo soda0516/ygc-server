@@ -8,10 +8,12 @@ import com.bin.serverapi.product.vo.detail.ProductCategoryVo;
 import lombok.extern.slf4j.Slf4j;
 import me.subin.response.controller.ResponseBuilder;
 import me.subin.response.controller.ResponseModel;
+import me.subin.utils.JsonConverterBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -26,23 +28,44 @@ public class ProductCategoryController {
         log.info("listAllWithChildren");
         return ResponseBuilder.success(productCategoryService.listAllWithChildren());
     }
+
     /**
      * 保存和修改公用的
-     * @param productCategory  传递的实体
+     * @param name  传递的实体
      * @return ResponseModel转换结果
      */
     @PostMapping
-    public ResponseModel<String> save(@RequestBody ProductCategory productCategory){
-        try {
-            if(productCategory.getId()!=null){
-                productCategoryService.updateById(productCategory);
-            }else{
-                productCategoryService.save(productCategory);
+    public ResponseModel<List<ProductCategory>> save(@RequestParam("name") String name){
+        Integer count = productCategoryService.lambdaQuery()
+                .eq(ProductCategory::getName, name)
+                .count();
+        if (count > 0){
+            return ResponseBuilder.failure("输入的名称重复，请重新输入");
+        }else {
+            ProductCategory category = new ProductCategory();
+            category.setName(name);
+            boolean save = productCategoryService.save(category);
+            if (save){
+                return ResponseBuilder.success(productCategoryService.list());
+            }else {
+                return ResponseBuilder.failure("添加名称失败");
             }
-            return ResponseBuilder.success();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseBuilder.failure("保存对象失败");
+        }
+    }
+
+    /**
+     * 保存和修改公用的
+     * @param item  传递的实体
+     * @return ResponseModel转换结果
+     */
+    @PutMapping
+    public ResponseModel<ProductCategory> update(@RequestParam("item") String item){
+        ProductCategory productCategory = JsonConverterBin.transferToObject(item, ProductCategory.class);
+        boolean b = productCategoryService.saveOrUpdate(productCategory);
+        if (b){
+            return ResponseBuilder.success(productCategoryService.getById(productCategory.getId()));
+        }else {
+            return ResponseBuilder.failure();
         }
     }
 
@@ -54,7 +77,10 @@ public class ProductCategoryController {
     @DeleteMapping(value="/{id}")
     public ResponseModel<String> delete(@PathVariable("id") Long id){
         try {
-            productCategoryService.removeById(id);
+            ProductCategory byId = productCategoryService.getById(id);
+            if (Objects.nonNull(byId)){
+                productCategoryService.removeById(byId.getId());
+            }
             return ResponseBuilder.success();
         } catch (Exception e) {
             e.printStackTrace();

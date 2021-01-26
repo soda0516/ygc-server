@@ -50,7 +50,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Vo_Column_List">
         order_in_detail.id as id, order_id,
-        CONCAT(product_detail.category_name,'/', product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
+        CONCAT(product_detail.category_name,'/',product_detail.model_name,' ', product_detail.specification_name,' ',  product_detail.description_name,' ', product_detail.remark) as product_name,
         product_category_id,product_id, request_num, actual_num, order_in_detail.remark as remark, extra_remark, unit_price, total_fee, store_id, order_type, subject_id, order_date
     </sql>
     <sql id="Detail_Order_List">
@@ -89,9 +89,6 @@ order_in_detail.subject_id as detail_subject_id, order_in_detail.order_date as d
             <if test= "searchData.selectedRegion != null and searchData.selectedRegion != ''">
                 and order_in.region_id = #{searchData.selectedRegion}
             </if>
-            <if test= "searchData.selectedSubject != null and searchData.selectedSubject != ''">
-                and order_in.subject_type = #{searchData.selectedSubject}
-            </if>
             <if test= "searchData.orderType != null and searchData.orderType != ''">
                 and order_in.order_type = #{searchData.orderType}
             </if>
@@ -112,6 +109,40 @@ order_in_detail.subject_id as detail_subject_id, order_in_detail.order_date as d
                 </foreach>
             </if>
         </where>
+        order by order_in_detail.order_id desc ,order_in_detail.order_date desc
+    </select>
+    <select id="selectForStoreAccount" resultMap="com.bin.serverapi.product.mapper.ProductDetailMapper.SimpleResultMap" resultType="map">
+        SELECT product_id as product_detail_id,SUM(CASE order_in_detail.subject_id
+        WHEN 1 THEN
+		order_in_detail.actual_num
+		ELSE
+		0 END) as subject1_num,SUM(CASE order_in_detail.subject_id
+	    WHEN 2 THEN
+		order_in_detail.actual_num
+	    ELSE
+		0 END) as subject2_num,SUM(CASE order_in_detail.subject_id
+	    WHEN 3 THEN
+		order_in_detail.actual_num
+	    ELSE
+		0 END) as subject3_num,SUM(CASE order_in_detail.subject_id
+	    WHEN 4 THEN
+		order_in_detail.actual_num
+	    ELSE
+		0 END) as subject4_num,SUM(CASE order_in_detail.subject_id
+	    WHEN 5 THEN
+		order_in_detail.actual_num
+	    ELSE
+		0 END) as subject5_num
+        FROM order_in_detail
+        <where>${ew.sqlSegment}</where>
+        GROUP BY order_in_detail.product_id
+    </select>
+    <select id="selectWithOrderInToday" resultType="java.util.Map">
+        SELECT <include refid="Detail_Order_List"/>
+        FROM order_in_detail
+        LEFT JOIN order_in on order_in_detail.order_id = order_in.id
+        LEFT JOIN product_detail on order_in_detail.product_id = product_detail.id
+        WHERE order_in_detail.create_time BETWEEN DATE_FORMAT(NOW(),'%Y-%m-%d 00:00:00')  AND DATE_FORMAT(NOW(),'%Y-%m-%d 23:59:59')
         order by order_in_detail.order_id desc ,order_in_detail.order_date desc
     </select>
 </mapper>

@@ -5,6 +5,41 @@ spring:
     active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: Soda7817169
-    url: jdbc:mysql://127.0.0.1:3306/ygc-db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8&allowMultiQueries=true&characterEncoding=UTF-8
+#    username: root
+#    password: Soda7817169
+#    url: jdbc:mysql://127.0.0.1:3306/ygc-db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8&allowMultiQueries=true&characterEncoding=UTF-8
+    username: subin
+    password: Nobita19860806!
+    url: jdbc:mysql://rm-2zeyiu820b9af35h93o.mysql.rds.aliyuncs.com:3306/ygc-db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+#    druid:
+#      initial-size: 6
+#      max-active: 20
+#      min-idle: 5
+#      max-wait: -1
+#      not-full-timeout-retry-count: 0
+#      validation-query: SELECT 1
+#      validation-query-timeout: -1
+#      test-while-idle: true
+#      test-on-borrow: false
+#      test-on-return: false
+#      time-between-eviction-runs-millis: 60000
+#      time-between-connect-error-millis: 500
+#      min-evictable-idle-time-millis: 1800000
+#      max-evictable-idle-time-millis: 25200000
+#      phy-timeout-millis: -1
+#      pool-prepared-statements: false
+#      share-prepared-statements: false
+#      max-pool-prepared-statement-per-connection-size: 10
+#      use-global-data-source-stat: false
+jwt:
+  x-token: X-Token
+  header: Authorization
+  secret: df4f8dde5f4vd55gffgdfgdg55asd6sdv5dfg8sf5sdbsdfsdfs9sdfs5asd5asd54s854d4x5sg4h8y6jh4h7ytg
+  expiration: 604800
+  tokenHead: "Bearer "
+  expiryHours: 2
+  route:
+    authentication:
+      path: auth
+      refresh: refresh
+      register: "auth/register"

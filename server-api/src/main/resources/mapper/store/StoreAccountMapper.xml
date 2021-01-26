@@ -24,6 +24,14 @@
         <result column="subject_num_five" property="subjectNumFive" />
         <result column="store_id" property="storeId" />
     </resultMap>
+    <resultMap id="storeAccountBoMap" type="com.bin.serverapi.store.bo.StoreCountBo">
+        <result column="account_date" property="storeDate" />
+        <result column="store_num" property="storeNum" />
+    </resultMap>
+    <resultMap id="storeAccumulateCountBoMap" type="com.bin.serverapi.store.bo.StoreAccumulateCountBo">
+        <result column="add_count" property="addCount" />
+        <result column="substract_count" property="substractCount" />
+    </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         create_time,
@@ -44,7 +52,150 @@
         <where>${ew.sqlSegment}</where>
         GROUP BY store_account.product_detail_id
     </select>
-<!--    ${ew.customSqlSegment}-->
+    <select id="selectStoreAccountHistoryDate" resultType="com.bin.serverapi.store.bo.StoreAccountHistoryDate">
+        SELECT account_date as history_date FROM store_account
+        <where>
+            store_account.store_id = #{storeId}
+        </where>
+         GROUP BY store_account.account_date ORDER BY store_account.account_date desc
+    </select>
 
+    <select id="selectStoreCountByCondition" resultMap="storeAccountBoMap">
+        SELECT account_date,SUM(store_account.store_num) as store_num FROM store_account
+        WHERE store_id = #{searchData.storeId} and subject_id = #{searchData.subjectId} and product_detail_id IN
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        and account_date <![CDATA[<]]> #{searchData.startDate} GROUP BY store_id, subject_id,account_date ORDER BY account_date desc LIMIT 1
+    </select>
 
+    <select id="selectCountByCondition" resultType="integer" >
+        SELECT
+        (SELECT IFNULL(SUM(order_in_detail.actual_num),0) as store_num
+        FROM order_in_detail FORCE INDEX (uk_detail) LEFT JOIN order_in ON order_in_detail.order_id = order_in.id where
+        order_in_detail.store_id = #{searchData.storeId}
+        and order_in_detail.subject_id = #{searchData.subjectId}
+        and order_in_detail.order_date > #{searchData.storeDate} AND order_in_detail.order_date <![CDATA[<]]> #{searchData.startDate}
+        and order_in_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        )
+       -
+        (SELECT IFNULL(SUM(order_out_detail.actual_num),0) as store_num
+        FROM order_out_detail FORCE INDEX (uk_detail) LEFT JOIN order_out ON order_out_detail.order_id = order_out.id where
+        order_out_detail.store_id = #{searchData.storeId}
+        and order_out_detail.subject_id = #{searchData.subjectId}
+        and order_out_detail.order_date > #{searchData.storeDate} AND order_out_detail.order_date <![CDATA[<]]> #{searchData.startDate}
+        and order_out_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        )
+        +
+        (SELECT IFNULL(SUM(order_internal_detail.actual_num),0) as store_num
+        FROM order_internal_detail FORCE INDEX (uk_detail) LEFT JOIN order_internal ON order_internal_detail.order_id = order_internal.id
+        WHERE
+        order_internal_detail.store_id = #{searchData.storeId}
+        and order_internal_detail.add_subject = #{searchData.subjectId}
+        and order_internal.internal_date > #{searchData.storeDate} AND order_internal.internal_date <![CDATA[<]]> #{searchData.startDate}
+        and order_internal_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        )
+        -
+        (SELECT IFNULL(SUM(order_internal_detail.actual_num),0) as store_num
+        FROM order_internal_detail FORCE INDEX (uk_detail) LEFT JOIN order_internal ON order_internal_detail.order_id = order_internal.id
+        WHERE
+        order_internal_detail.store_id = #{searchData.storeId}
+        and order_internal_detail.subtract_subject = #{searchData.subjectId}
+        and order_internal.internal_date > #{searchData.storeDate} AND order_internal.internal_date <![CDATA[<]]> #{searchData.startDate}
+        and order_internal_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        )
+    </select>
+    <select id="selectAccumulateCountByCondition" resultType="com.bin.serverapi.store.bo.StoreAccumulateCountBo" >
+        SELECT
+        (SELECT IFNULL(SUM(order_in_detail.actual_num),0) as store_num
+        FROM order_in_detail FORCE INDEX (uk_detail) LEFT JOIN order_in ON order_in_detail.order_id = order_in.id where
+        order_in_detail.store_id = #{searchData.storeId}
+        and order_in_detail.subject_id = #{searchData.subjectId}
+        and order_in_detail.order_date > #{searchData.startDate} AND order_in_detail.order_date <![CDATA[<]]> #{searchData.endDate}
+        and order_in_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        )
+       +
+        (SELECT IFNULL(SUM(order_internal_detail.actual_num),0) as store_num
+        FROM order_internal_detail FORCE INDEX (uk_detail) LEFT JOIN order_internal ON order_internal_detail.order_id = order_internal.id
+        WHERE
+        order_internal_detail.store_id = #{searchData.storeId}
+        and order_internal_detail.add_subject = #{searchData.subjectId}
+        and order_internal.internal_date > #{searchData.startDate} AND order_internal.internal_date <![CDATA[<]]> #{searchData.endDate}
+        and order_internal_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        ) as add_count
+        ,
+        (SELECT IFNULL(SUM(order_out_detail.actual_num),0) as store_num
+        FROM order_out_detail FORCE INDEX (uk_detail) LEFT JOIN order_out ON order_out_detail.order_id = order_out.id where
+        order_out_detail.store_id = #{searchData.storeId}
+        and order_out_detail.subject_id = #{searchData.subjectId}
+        and order_out_detail.order_date > #{searchData.startDate} AND order_out_detail.order_date <![CDATA[<]]> #{searchData.endDate}
+        and order_out_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        )
+        +
+        (SELECT IFNULL(SUM(order_internal_detail.actual_num),0) as store_num
+        FROM order_internal_detail FORCE INDEX (uk_detail) LEFT JOIN order_internal ON order_internal_detail.order_id = order_internal.id
+        WHERE
+        order_internal_detail.store_id = #{searchData.storeId}
+        and order_internal_detail.subtract_subject = #{searchData.subjectId}
+        and order_internal.internal_date > #{searchData.startDate} AND order_internal.internal_date <![CDATA[<]]> #{searchData.endDate}
+        and order_internal_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        ) as substract_count
+    </select>
+    <select id="selectForStoreAccountVo" resultMap="com.bin.serverapi.product.mapper.ProductDetailMapper.SimpleResultMap" resultType="map">
+        SELECT store_account.product_detail_id as product_detail_id,SUM(CASE store_account.subject_id
+		WHEN 1 THEN
+		store_account.store_num
+		ELSE
+		0 END) as subject1_num,SUM(CASE store_account.subject_id
+	    WHEN 2 THEN
+		store_account.store_num
+	    ELSE
+		0 END) as subject2_num,SUM(CASE store_account.subject_id
+	    WHEN 3 THEN
+		store_account.store_num
+	    ELSE
+		0 END) as subject3_num,SUM(CASE store_account.subject_id
+	    WHEN 4 THEN
+		store_account.store_num
+	    ELSE
+		0 END) as subject4_num,SUM(CASE store_account.subject_id
+	    WHEN 5 THEN
+		store_account.store_num
+	    ELSE
+		0 END) as subject5_num
+        FROM store_account WHERE store_account.store_id = 0 and store_account.account_date = '2020/1/1'  GROUP BY store_account.product_detail_id
+    </select>
 </mapper>

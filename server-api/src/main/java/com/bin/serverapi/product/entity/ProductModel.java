@@ -19,7 +19,6 @@ import me.subin.base.entity.BaseEntity;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
 public class ProductModel extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,7 +26,7 @@ public class ProductModel extends BaseEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    private Long productId;
+    private Long productCategoryId;
 
     private String name;
 

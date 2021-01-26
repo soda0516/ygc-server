@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.subin.commonsuser.mapper.UserTokenMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="me.subin.commonsuser.entity.UserToken">
+        <id column="id" property="id" />
+        <result column="jwt_token" property="jwtToken" />
+        <result column="user_name" property="userName" />
+        <result column="expire_time" property="expireTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, jwt_token, user_name, expire_time
+    </sql>
+
+</mapper>

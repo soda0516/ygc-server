@@ -34,10 +34,4 @@ public class StoreInfo extends BaseEntity {
      */
     private String name;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime crateTime;
-
-
 }

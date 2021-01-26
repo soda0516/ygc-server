@@ -1,0 +1,12 @@
+jwt:
+  x-token: X-Token
+  header: Authorization
+  secret: df4f8dde5f4vd55gffgdfgdg55asd6sdv5dfg8sf5sdbsdfsdfs9sdfs5asd5asd54s854d4x5sg4h8y6jh4h7ytg
+  expiration: 604800
+  tokenHead: "Bearer "
+  expiryHours: 2
+  route:
+    authentication:
+      path: auth
+      refresh: refresh
+      register: "auth/register"

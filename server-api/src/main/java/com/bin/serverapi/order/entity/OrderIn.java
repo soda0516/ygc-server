@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import me.subin.base.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import me.subin.jackson.deserializer.NullToZeroDeserializer;
 
 /**
  * <p>
@@ -19,7 +21,6 @@ import lombok.experimental.Accessors;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
 public class OrderIn extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

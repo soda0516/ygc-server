@@ -1,6 +1,7 @@
 package com.bin.serverapi.store.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.bin.serverapi.store.bo.StoreAccountHistoryDate;
 import com.bin.serverapi.store.service.IStoreAccountService;
 import com.bin.serverapi.store.entity.StoreAccount;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -62,6 +63,26 @@ public class StoreAccountController {
         log.info("storeAccountSetVo");
         return ResponseBuilder.success();
     }
+    /**
+     * 查看历史盘点日期列表
+     * @return
+     */
+    @GetMapping(value = "/history-date")
+    public ResponseModel<List<StoreAccountHistoryDate>> get(@RequestParam("storeId") Integer storeId) {
+        return ResponseBuilder.success(storeAccountService.listStoreAccountHistoryDate(storeId));
+    }
+    /**
+     * 查看历史盘点日期列表
+     * @return
+     */
+    @GetMapping(value = "/history/list")
+    public ResponseModel<List<StoreAccountSetVo>> get(@RequestParam("accountDate") String accountDate, @RequestParam("storeId") Integer storeId) {
+        LocalDate parse = LocalDate.parse(accountDate);
+        LambdaQueryWrapper<StoreAccount> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(StoreAccount::getAccountDate,parse);
+        lambdaQueryWrapper.eq(StoreAccount::getStoreId,storeId);
+        return ResponseBuilder.success(storeAccountService.listStoreAccountSetVoByDateStoreId(lambdaQueryWrapper));
+    }
 
     /**
     * 删除对象信息
@@ -77,6 +98,25 @@ public class StoreAccountController {
             e.printStackTrace();
             return ResponseBuilder.failure("删除对象失败");
         }
+    }
+
+    /**
+     * 删除对象信息
+     * @param id
+     * @return
+     */
+    @DeleteMapping(value="/historyDate")
+    public ResponseModel<String> deleteByDateStoreId(@RequestParam("storeId") Integer storeId, @RequestParam("historyDate") String historyDate){
+        LocalDate parse = LocalDate.parse(historyDate);
+        List<StoreAccount> list = storeAccountService.lambdaQuery()
+                .eq(StoreAccount::getAccountDate, parse)
+                .eq(StoreAccount::getStoreId, storeId)
+                .list();
+        for (StoreAccount account:list
+             ) {
+            storeAccountService.removeById(account.getId());
+        }
+        return ResponseBuilder.success();
     }
 
     /**

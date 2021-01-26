@@ -70,6 +70,7 @@ public class StoreInfoController {
     */
     @GetMapping(value = "/list")
     public ResponseModel<List<StoreInfo>> list(){
+        List<StoreInfo> list = storeInfoService.list();
         return ResponseBuilder.success(storeInfoService.list());
     }
 

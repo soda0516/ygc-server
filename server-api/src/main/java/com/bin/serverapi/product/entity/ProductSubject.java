@@ -17,7 +17,6 @@ import me.subin.base.entity.BaseEntity;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
 public class ProductSubject extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

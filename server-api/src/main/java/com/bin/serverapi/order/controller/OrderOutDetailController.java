@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author subin
+ */
 @Slf4j
 @RestController
 @RequestMapping("/order/orderOutDetail")
@@ -27,6 +30,7 @@ public class OrderOutDetailController {
 
     @GetMapping(value = "/page/detail")
     public ResponseModel<IPage<Map<String,Object>>> pageWithDetail(
+            @RequestParam("today") Boolean today,
             @RequestParam("searchData") String searchData,
             @RequestParam("currentPage") Integer currentPage,
             @RequestParam("pages") Integer pages){
@@ -36,7 +40,11 @@ public class OrderOutDetailController {
         IPage<Map<String,Object>> page = new Page<>();
         page.setCurrent(currentPage);
         page.setSize(pages);
-        return ResponseBuilder.success(orderOutDetailService.pageWithOrderOut(page,orderInOutSearchDataBo));
+        if (today) {
+            return ResponseBuilder.success(orderOutDetailService.pageWithOrderOutToday(page));
+        }else {
+            return ResponseBuilder.success(orderOutDetailService.pageWithOrderOut(page,orderInOutSearchDataBo));
+        }
     }
 
     /**

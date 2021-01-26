@@ -10,12 +10,18 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.subin.response.controller.ResponseBuilder;
 import me.subin.response.controller.ResponseModel;
+import me.subin.response.service.ServiceResponse;
 import me.subin.utils.JsonConverterBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * @author subin
+ */
 @Slf4j
 @RestController
 @RequestMapping("/order/orderOut")
@@ -31,7 +37,7 @@ public class OrderOutController {
      * @return ResponseModel转换结果
      */
     @PostMapping
-    public ResponseModel<String> save(
+    public ResponseModel<Long> save(
             @RequestParam("order") String orderOutStr,
             @RequestParam("orderDetailList") String orderOutDetailListStr){
         log.info(orderOutStr);
@@ -39,8 +45,23 @@ public class OrderOutController {
         log.info(JsonConverterBin.transferToJson(orderIn));
         List<OrderOutDetail> orderInDetails = JsonConverterBin.transferToObjectList(orderOutDetailListStr,
                 OrderOutDetail.class);
-        orderOutService.saveOrder(orderIn,orderInDetails);
-        return ResponseBuilder.success();
+//        LocalDate end = LocalDate.now();
+//        LocalDate start = end.minusYears(8);
+//        orderIn.setOrderDate(start);
+//        while (start.isBefore(end)){
+//            orderIn.setOrderDate(start);
+//            log.info(orderIn.getOrderDate().toString());
+//            for (int i = 0; i < 10 ; i++) {
+//                if (Objects.nonNull(orderIn.getId())){
+//                    orderIn.setId(null);
+//                }
+//                ServiceResponse<Long> longServiceResponse = orderOutService.saveOrder(orderIn, orderInDetails);
+//            }
+//            start= start.plusDays(1);
+//            orderIn.setOrderDate(start);
+//        }
+        ServiceResponse<Long> longServiceResponse = orderOutService.saveOrder(orderIn, orderInDetails);
+        return ResponseBuilder.success(longServiceResponse.getData());
     }
 
     /**

@@ -14,8 +14,13 @@ import me.subin.utils.JsonConverterBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * @author subin
+ */
 @Slf4j
 @RestController
 @RequestMapping("/order/orderIn")
@@ -39,6 +44,21 @@ public class OrderInController {
         log.info(JsonConverterBin.transferToJson(orderIn));
         List<OrderInDetail> orderInDetails = JsonConverterBin.transferToObjectList(orderInDetailListStr,
                 OrderInDetail.class);
+//        LocalDate end = LocalDate.now();
+//        LocalDate start = end.minusYears(8);
+//        orderIn.setOrderDate(start);
+//        while (start.isBefore(end)){
+//            orderIn.setOrderDate(start);
+//            log.info(orderIn.getOrderDate().toString());
+//            for (int i = 0; i < 30; i++) {
+//                if (Objects.nonNull(orderIn.getId())){
+//                    orderIn.setId(null);
+//                }
+//                ServiceResponse<Long> longServiceResponse = orderInService.saveOrder(orderIn, orderInDetails);
+//            }
+//            start= start.plusDays(1);
+//            orderIn.setOrderDate(start);
+//        }
         ServiceResponse<Long> longServiceResponse = orderInService.saveOrder(orderIn, orderInDetails);
         return ResponseBuilder.success(longServiceResponse.getData());
     }

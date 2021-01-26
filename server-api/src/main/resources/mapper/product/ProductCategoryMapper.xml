@@ -23,7 +23,7 @@
     </sql>
     <select id="listAllWithChildren" resultMap="WithChildrenResultMap">
 SELECT product_category.id as category_id, product_category.name as category_name,product_detail.id as detail_id,
-CONCAT(product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark)
+CONCAT(product_detail.model_name,' ',product_detail.specification_name,' ', product_detail.description_name,' ', product_detail.remark)
 as detail_label FROM product_detail LEFT JOIN product_category on product_detail.category_id = product_category.id
     </select>
 

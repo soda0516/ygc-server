@@ -45,6 +45,7 @@ public class OrderInternalDetailController {
 
     @GetMapping(value = "/page/detail")
     public ResponseModel<IPage<Map<String,Object>>> pageWithDetail(
+            @RequestParam("today") Boolean today,
             @RequestParam("searchData") String searchData,
             @RequestParam("currentPage") Integer currentPage,
             @RequestParam("pages") Integer pages){
@@ -53,7 +54,11 @@ public class OrderInternalDetailController {
         IPage<Map<String,Object>> page = new Page<>();
         page.setCurrent(currentPage);
         page.setSize(pages);
-        return ResponseBuilder.success(orderInternalDetailService.pageWithOrderInternal(page,orderInternalSearchDataBo));
+        if (today) {
+            return ResponseBuilder.success(orderInternalDetailService.pageWithOrderInternalToday(page));
+        }else {
+            return ResponseBuilder.success(orderInternalDetailService.pageWithOrderInternal(page,orderInternalSearchDataBo));
+        }
     }
 
     /**

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.subin.commonsuser.mapper.UserInfoRoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="me.subin.commonsuser.entity.UserInfoRole">
+        <id column="id" property="id" />
+        <result column="info_id" property="infoId" />
+        <result column="role_id" property="roleId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, info_id, role_id
+    </sql>
+    <select id="listUserRoleIdByInfoId" resultType="java.lang.Long">
+        SELECT role_id FROM user_info_role where  user_info_role.info_id = #{infoId}
+    </select>
+
+</mapper>

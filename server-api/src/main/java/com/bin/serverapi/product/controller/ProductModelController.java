@@ -1,11 +1,15 @@
 package com.bin.serverapi.product.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.bin.serverapi.product.entity.ProductCategory;
+import com.bin.serverapi.product.entity.ProductDescription;
 import com.bin.serverapi.product.service.IProductModelService;
 import com.bin.serverapi.product.entity.ProductModel;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import me.subin.response.controller.ResponseBuilder;
 import me.subin.response.controller.ResponseModel;
+import me.subin.utils.JsonConverterBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,24 +24,46 @@ public class ProductModelController {
 
     /**
      * 保存和修改公用的
-     * @param productModel  传递的实体
+     * @param name  传递的实体
      * @return ResponseModel转换结果
      */
     @PostMapping
-    public ResponseModel<String> save(@RequestBody ProductModel productModel){
-        try {
-            if(productModel.getId()!=null){
-                productModelService.updateById(productModel);
-            }else{
-                productModelService.save(productModel);
+    public ResponseModel<List<ProductModel>> save(@RequestParam("name") String name,@RequestParam("categoryId") Long categoryId){
+        Integer count = productModelService.lambdaQuery()
+                .eq(ProductModel::getName, name)
+                .count();
+        if (count > 0){
+            return ResponseBuilder.failure("输入的名称重复，请重新输入");
+        }else {
+            ProductModel category = new ProductModel();
+            category.setProductCategoryId(categoryId);
+            category.setName(name);
+            boolean save = productModelService.save(category);
+            if (save){
+                List<ProductModel> list = productModelService.lambdaQuery()
+                        .eq(ProductModel::getProductCategoryId, categoryId)
+                        .list();
+                return ResponseBuilder.success(list);
+            }else {
+                return ResponseBuilder.failure("添加名称失败");
             }
-            return ResponseBuilder.success();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseBuilder.failure("保存对象失败");
         }
     }
-
+    /**
+     * 保存和修改公用的
+     * @param item  传递的实体
+     * @return ResponseModel转换结果
+     */
+    @PutMapping
+    public ResponseModel<ProductModel> update(@RequestParam("item") String item){
+        ProductModel product = JsonConverterBin.transferToObject(item, ProductModel.class);
+        boolean b = productModelService.saveOrUpdate(product);
+        if (b){
+            return ResponseBuilder.success(productModelService.getById(product.getId()));
+        }else {
+            return ResponseBuilder.failure();
+        }
+    }
     /**
     * 删除对象信息
     * @param id
@@ -71,6 +97,16 @@ public class ProductModelController {
     @GetMapping(value = "/list")
     public ResponseModel<List<ProductModel>> list(){
         return ResponseBuilder.success(productModelService.list());
+    }
+    /**
+     * 查看所有的员工信息
+     * @return
+     */
+    @GetMapping(value = "/list/category/{id}")
+    public ResponseModel<List<ProductModel>> list(@PathVariable("id") Long id){
+        LambdaQueryWrapper<ProductModel> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(ProductModel::getProductCategoryId,id);
+        return ResponseBuilder.success(productModelService.list(lambdaQueryWrapper));
     }
 
 

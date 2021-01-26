@@ -29,7 +29,7 @@
     </sql>
     <sql id="Detail_Order_List">
 order_out.id as order_id,order_out.order_date as order_order_date,order_out.region_id as order_region_id,
-CONCAT(product_detail.category_name,'/', product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
+CONCAT(product_detail.category_name,'/',product_detail.model_name,' ', product_detail.specification_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
 order_out.center_id as order_center_id,order_out.station_id as order_station_id,order_out.order_type as order_order_type,
 order_out.oper_item as order_oper_item,order_out.well_name as order_well_name,order_out.store_id as order_store_id,
 order_out.subject_type as order_subject_type,order_out.remark as order_remark,order_out_detail.id as detail_id, order_out_detail.order_id as detail_order_id,
@@ -38,7 +38,7 @@ order_out_detail.remark as detail_remark, order_out_detail.extra_remark as detai
 order_out_detail.total_fee as detail_total_fee, order_out_detail.store_id as detail_store_id, order_out_detail.order_type as detail_order_type,
 order_out_detail.subject_id as detail_subject_id, order_out_detail.order_date as detail_order_date
     </sql>
-    <select id="selectWithOrderIn" resultType="java.util.Map">
+    <select id="selectWithOrderOut" resultType="java.util.Map">
         SELECT <include refid="Detail_Order_List"/>
         FROM order_out_detail
         LEFT JOIN order_out on order_out_detail.order_id = order_out.id
@@ -76,6 +76,41 @@ order_out_detail.subject_id as detail_subject_id, order_out_detail.order_date as
                 </foreach>
             </if>
         </where>
+        order by order_out_detail.order_id desc ,order_out_detail.order_date desc
+    </select>
+
+    <select id="selectForStoreAccount" resultMap="com.bin.serverapi.product.mapper.ProductDetailMapper.SimpleResultMap" resultType="map">
+        SELECT product_id as product_detail_id,SUM(CASE order_out_detail.subject_id
+        WHEN 1 THEN
+		order_out_detail.actual_num
+		ELSE
+		0 END) as subject1_num,SUM(CASE order_out_detail.subject_id
+	    WHEN 2 THEN
+		order_out_detail.actual_num
+	    ELSE
+		0 END) as subject2_num,SUM(CASE order_out_detail.subject_id
+	    WHEN 3 THEN
+		order_out_detail.actual_num
+	    ELSE
+		0 END) as subject3_num,SUM(CASE order_out_detail.subject_id
+	    WHEN 4 THEN
+		order_out_detail.actual_num
+	    ELSE
+		0 END) as subject4_num,SUM(CASE order_out_detail.subject_id
+	    WHEN 5 THEN
+		order_out_detail.actual_num
+	    ELSE
+		0 END) as subject5_num
+        FROM order_out_detail
+        <where>${ew.sqlSegment}</where>
+        GROUP BY order_out_detail.product_id
+    </select>
+    <select id="selectWithOrderInToday" resultType="java.util.Map">
+        SELECT <include refid="Detail_Order_List"/>
+        FROM order_out_detail
+        LEFT JOIN order_out on order_out_detail.order_id = order_out.id
+        LEFT JOIN product_detail on order_out_detail.product_id = product_detail.id
+        WHERE order_out_detail.create_time BETWEEN DATE_FORMAT(NOW(),'%Y-%m-%d 00:00:00')  AND DATE_FORMAT(NOW(),'%Y-%m-%d 23:59:59')
         order by order_out_detail.order_id desc ,order_out_detail.order_date desc
     </select>
 </mapper>

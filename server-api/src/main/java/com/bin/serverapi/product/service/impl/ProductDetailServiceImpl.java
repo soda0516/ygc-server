@@ -4,7 +4,10 @@ import com.bin.serverapi.product.entity.ProductDetail;
 import com.bin.serverapi.product.mapper.ProductDetailMapper;
 import com.bin.serverapi.product.service.IProductDetailService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bin.serverapi.report.vo.ReportStoreAccountVo;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,5 +19,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProductDetailServiceImpl extends ServiceImpl<ProductDetailMapper, ProductDetail> implements IProductDetailService {
-
+    @Override
+    public List<ReportStoreAccountVo> listAllForStoreAccountVo() {
+        return this.baseMapper.selectAllForStoreAccountVo();
+    }
 }

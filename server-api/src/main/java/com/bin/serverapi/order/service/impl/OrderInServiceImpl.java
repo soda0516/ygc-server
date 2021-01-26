@@ -10,11 +10,15 @@ import com.bin.serverapi.order.service.IOrderInDetailService;
 import com.bin.serverapi.order.service.IOrderInService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bin.serverapi.order.vo.OrderInVo;
+import com.bin.serverapi.report.bo.AccountDetailSearchBo;
 import lombok.extern.slf4j.Slf4j;
+import me.subin.converter.CustomNumberNullToZeroConverter;
 import me.subin.response.service.ServiceResponse;
 import me.subin.response.service.ServiceResponseBuilder;
 import me.subin.utils.JsonConverterBin;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.beans.BeanCopier;
+import org.springframework.cglib.core.Converter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,14 +37,24 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class OrderInServiceImpl extends ServiceImpl<OrderInMapper, OrderIn> implements IOrderInService {
+    private BeanCopier beanCopier = BeanCopier.create(OrderIn.class,OrderIn.class,true);
     @Autowired
     IOrderInDetailService iOrderInDetailService;
+    @Autowired
+    CustomNumberNullToZeroConverter customNumberNullToZeroConverter;
     @Transactional(rollbackFor = Exception.class)
     @Override
     public ServiceResponse<Long> saveOrder(OrderIn orderIn, List<OrderInDetail> orderInDetailList) {
         if (Objects.nonNull(orderIn.getId())){
             OrderIn order = this.baseMapper.selectById(orderIn.getId());
-            BeanUtil.copyProperties(orderIn,order, CopyOptions.create().setIgnoreNullValue(false).setIgnoreError(true).setIgnoreProperties("createTime","updateTime"));
+            beanCopier.copy(orderIn, order, customNumberNullToZeroConverter);
+//            BeanUtil.copyProperties(orderIn,order, CopyOptions.create().setIgnoreNullValue(false).setIgnoreError(true).setIgnoreProperties("createTime","updateTime"));
+            if (Objects.isNull(order.getCenterId())){
+                order.setCenterId(0L);
+            }
+            if (Objects.isNull(order.getStationId())){
+                order.setCenterId(0L);
+            }
             this.baseMapper.updateById(order);
             List<OrderInDetail> list = iOrderInDetailService.lambdaQuery()
                     .eq(OrderInDetail::getOrderId, order.getId())
@@ -76,6 +90,7 @@ public class OrderInServiceImpl extends ServiceImpl<OrderInMapper, OrderIn> impl
                 }
             }
         }else {
+            beanCopier.copy(orderIn, orderIn, customNumberNullToZeroConverter);
             this.baseMapper.insert(orderIn);
             for (OrderInDetail detail:orderInDetailList
             ) {

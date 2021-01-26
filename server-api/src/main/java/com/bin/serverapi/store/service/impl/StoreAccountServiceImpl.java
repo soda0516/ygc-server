@@ -6,17 +6,24 @@ import com.bin.serverapi.product.entity.ProductDetail;
 import com.bin.serverapi.product.entity.ProductSubject;
 import com.bin.serverapi.product.service.IProductDetailService;
 import com.bin.serverapi.product.service.IProductSubjectService;
+import com.bin.serverapi.report.bo.AccountDetailSearchBo;
+import com.bin.serverapi.report.vo.ReportStoreAccountVo;
+import com.bin.serverapi.store.bo.StoreAccountHistoryDate;
+import com.bin.serverapi.store.bo.StoreAccumulateCountBo;
+import com.bin.serverapi.store.bo.StoreCountBo;
 import com.bin.serverapi.store.entity.StoreAccount;
 import com.bin.serverapi.store.mapper.StoreAccountMapper;
 import com.bin.serverapi.store.service.IStoreAccountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bin.serverapi.store.bo.StoreAccountSetVo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -103,5 +110,30 @@ public class StoreAccountServiceImpl extends ServiceImpl<StoreAccountMapper, Sto
                 }
             }
         }
+    }
+
+    @Override
+    public List<StoreAccountHistoryDate> listStoreAccountHistoryDate(Integer storeId) {
+        return this.baseMapper.selectStoreAccountHistoryDate(storeId);
+    }
+
+    @Override
+    public Integer getCountByCondition(@Param("searchData") AccountDetailSearchBo searchData) {
+        return this.baseMapper.selectCountByCondition(searchData);
+    }
+
+    @Override
+    public StoreCountBo getStoreCountByCondition(AccountDetailSearchBo searchData) {
+        return this.baseMapper.selectStoreCountByCondition(searchData);
+    }
+
+    @Override
+    public StoreAccumulateCountBo getAccumulateCountByCondition(AccountDetailSearchBo searchData) {
+        return this.baseMapper.selectAccumulateCountByCondition(searchData);
+    }
+
+    @Override
+    public Map<Long, ReportStoreAccountVo> listForStoreAccountVo() {
+        return this.baseMapper.selectForStoreAccountVo();
     }
 }

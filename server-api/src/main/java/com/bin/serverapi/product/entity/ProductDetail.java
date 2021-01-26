@@ -2,12 +2,12 @@ package com.bin.serverapi.product.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
 import java.io.Serializable;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 import me.subin.base.entity.BaseEntity;
+import me.subin.jackson.serializer.ZeroToNullSerializer;
 
 /**
  * <p>
@@ -19,7 +19,6 @@ import me.subin.base.entity.BaseEntity;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
 public class ProductDetail extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -31,14 +30,17 @@ public class ProductDetail extends BaseEntity implements Serializable {
 
     private String categoryName;
 
+    @JsonSerialize(using = ZeroToNullSerializer.class)
     private Long descriptionId;
 
     private String descriptionName;
 
+    @JsonSerialize(using = ZeroToNullSerializer.class)
     private Long modelId;
 
     private String modelName;
 
+    @JsonSerialize(using = ZeroToNullSerializer.class)
     private Long specificationId;
 
     private String specificationName;

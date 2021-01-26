@@ -11,10 +11,13 @@ import com.bin.serverapi.order.service.IOrderOutDetailService;
 import com.bin.serverapi.order.service.IOrderOutService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import me.subin.converter.CustomNumberNullToZeroConverter;
 import me.subin.response.service.ServiceResponse;
 import me.subin.response.service.ServiceResponseBuilder;
 import me.subin.utils.JsonConverterBin;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.beans.BeanCopier;
+import org.springframework.cglib.core.Converter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,10 +35,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class OrderOutServiceImpl extends ServiceImpl<OrderOutMapper, OrderOut> implements IOrderOutService {
+    private BeanCopier beanCopier = BeanCopier.create(OrderOut.class,OrderOut.class,true);
     @Autowired
     IOrderOutDetailService iOrderOutDetailService;
+    @Autowired
+    CustomNumberNullToZeroConverter customNumberNullToZeroConverter;
     @Override
     public ServiceResponse<Long> saveOrder(OrderOut orderOut, List<OrderOutDetail> orderOutDetailList) {
+        beanCopier.copy(orderOut,orderOut,customNumberNullToZeroConverter);
         if (Objects.nonNull(orderOut.getId())){
             OrderOut order = this.baseMapper.selectById(orderOut.getId());
             BeanUtil.copyProperties(orderOut,order, CopyOptions.create().setIgnoreNullValue(false).setIgnoreError(true).setIgnoreProperties("createTime","updateTime"));

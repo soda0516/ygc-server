@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bin.serverapi.report.mapper.AccountDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bin.serverapi.report.vo.AccountDetailVo">
+        <result column="order_date" property="orderDate" />
+        <result column="summary" property="summary" />
+        <result column="in_num" property="inNum" />
+        <result column="out_num" property="outNum" />
+        <result column="store_num" property="storeNum" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        update_time,
+        id, name, crate_time
+    </sql>
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT order_date,summary,in_num,out_num,store_num,type FROM(
+        SELECT order_date,summary,in_num,out_num,<![CDATA[(]]> @sum <![CDATA[:=]]> @sum + in_num - out_num ) as store_num,type FROM <![CDATA[(]]>
+        SELECT order_date,summary,SUM(in_num) as in_num ,SUM(out_num) as out_num, @sum := #{storeNum} as store_num,type FROM(
+        SELECT #{searchData.storeDate} as order_date,'' as summary,'' as product_id,'' as in_num, '' as out_num ,0 as type,0 as store_num
+        UNION all
+        SELECT order_in_detail.order_date as order_date,order_in.well_name as summary,order_in_detail.product_id as product_id,order_in_detail.actual_num as in_num,'' as out_num,1 as type,'' as store_num
+        FROM order_in_detail LEFT JOIN order_in ON order_in_detail.order_id = order_in.id where
+        order_in_detail.store_id = #{searchData.storeId}
+        and order_in_detail.subject_id = #{searchData.subjectId}
+        and order_in_detail.order_date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        and order_in_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        UNION all
+        SELECT order_out_detail.order_date as order_date,order_out.well_name as summary,order_out_detail.product_id as product_id,'' as in_num,order_out_detail.actual_num as out_num,2 as type,'' as store_num
+        FROM order_out_detail LEFT JOIN order_out ON order_out_detail.order_id = order_out.id where
+        order_out_detail.store_id = #{searchData.storeId}
+        and order_out_detail.subject_id = #{searchData.subjectId}
+        and order_out_detail.order_date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        and order_out_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        UNION all
+        SELECT order_internal.internal_date as order_date,(CASE order_internal_detail.oper_type
+        WHEN 1 THEN
+        '上井回收'
+        WHEN 2 THEN
+        '上井发出'
+        WHEN 3 THEN
+        '场地分拣'
+        WHEN 4 THEN
+        '队间转移'
+        WHEN 5 THEN
+        '外部转移'
+        WHEN 6 THEN
+        '分检报废'
+        WHEN 7 THEN
+        '其他报废'
+        ELSE
+        '其他'
+        END) as summary,order_internal_detail.product_id as product_id,order_internal_detail.actual_num as in_num ,'' as out_num,3 as type,'' as store_num
+        FROM order_internal_detail LEFT JOIN order_internal ON order_internal_detail.order_id = order_internal.id
+        WHERE
+        order_internal_detail.store_id = #{searchData.storeId}
+        and order_internal_detail.add_subject = #{searchData.subjectId}
+        and order_internal.internal_date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        and order_internal_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        UNION all
+        SELECT order_internal.internal_date as order_date,(CASE order_internal_detail.oper_type
+        WHEN 1 THEN
+        '上井回收'
+        WHEN 2 THEN
+        '上井发出'
+        WHEN 3 THEN
+        '场地分拣'
+        WHEN 4 THEN
+        '队间转移'
+        WHEN 5 THEN
+        '外部转移'
+        WHEN 6 THEN
+        '分检报废'
+        WHEN 7 THEN
+        '其他报废'
+        ELSE
+        '其他'
+        END) as summary,order_internal_detail.product_id as product_id,'' as in_num ,order_internal_detail.actual_num as out_num,4 as type,'' as store_num
+        FROM order_internal_detail LEFT JOIN order_internal ON order_internal_detail.order_id = order_internal.id
+        WHERE
+        order_internal_detail.store_id = #{searchData.storeId}
+        and order_internal_detail.subtract_subject = #{searchData.subjectId}
+        and order_internal.internal_date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        and order_internal_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        UNION all
+        SELECT DATE_FORMAT(calendar_custom.date,'%Y-%m-25') as order_date, '月计' as summary,'' as product_id,'' as in_num,'' as out_num,100 as type,'' as store_num FROM calendar_custom WHERE calendar_custom.date BETWEEN #{searchData.startDate} AND #{searchData.endDate} GROUP BY order_date
+        UNION all
+        SELECT DATE_FORMAT(calendar_custom.date,'%Y-%m-25') as order_date, '累计' as summary,'' as product_id,'' as in_num,'' as out_num,200 as type,'' as store_num FROM calendar_custom WHERE calendar_custom.date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        GROUP BY order_date) as t GROUP BY order_date,summary ORDER BY t.order_date asc,t.type asc) as t2) as t3
+        where  t3.order_date  BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+    </select>
+    <select id="selectMaxDateInOrder" resultType="java.time.LocalDate">
+        select MAX(t.order_date) from (SELECT order_in_detail.order_date as order_date
+        FROM order_in_detail LEFT JOIN order_in ON order_in_detail.order_id = order_in.id where
+        order_in_detail.store_id = #{searchData.storeId}
+        and order_in_detail.subject_id = #{searchData.subjectId}
+        and order_in_detail.order_date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        and order_in_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        UNION all
+        SELECT order_out_detail.order_date as order_date
+        FROM order_out_detail LEFT JOIN order_out ON order_out_detail.order_id = order_out.id where
+        order_out_detail.store_id = #{searchData.storeId}
+        and order_out_detail.subject_id = #{searchData.subjectId}
+        and order_out_detail.order_date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        and order_out_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        UNION all
+        SELECT order_internal.internal_date as order_date
+        FROM order_internal_detail LEFT JOIN order_internal ON order_internal_detail.order_id = order_internal.id
+        WHERE
+        order_internal_detail.store_id = #{searchData.storeId}
+        and order_internal_detail.add_subject = #{searchData.subjectId}
+        and order_internal.internal_date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        and order_internal_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        UNION all
+        SELECT order_internal.internal_date as order_date
+        FROM order_internal_detail LEFT JOIN order_internal ON order_internal_detail.order_id = order_internal.id
+        WHERE
+        order_internal_detail.store_id = #{searchData.storeId}
+        and order_internal_detail.subtract_subject = #{searchData.subjectId}
+        and order_internal.internal_date BETWEEN #{searchData.startDate} AND #{searchData.endDate}
+        and order_internal_detail.product_id in
+        <foreach collection="searchData.productIds" item="item" index="index" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>) as t
+    </select>
+</mapper>

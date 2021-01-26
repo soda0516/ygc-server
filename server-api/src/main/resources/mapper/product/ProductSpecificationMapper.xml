@@ -6,14 +6,14 @@
     <resultMap id="BaseResultMap" type="com.bin.serverapi.product.entity.ProductSpecification">
         <id column="id" property="id" />
         <result column="name" property="name" />
-        <result column="product_id" property="productId" />
+        <result column="product_category_id" property="productCategoryId" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, product_id, create_time, update_time
+        id, name, product_category_id, create_time, update_time
     </sql>
 
 </mapper>

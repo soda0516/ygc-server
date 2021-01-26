@@ -15,5 +15,9 @@ import java.util.List;
  * @since 2020-12-26
  */
 public interface ProductCategoryMapper extends BaseMapper<ProductCategory> {
+    /**
+     * 查询所有的商品信息
+     * @return
+     */
     List<ProductCategoryVo> listAllWithChildren();
 }

@@ -32,7 +32,7 @@
     </sql>
     <sql id="Modify_Column_list">
 order_internal.id as order_id,order_internal.internal_date as order_internal_date,
-CONCAT(product_detail.category_name,'/', product_detail.specification_name,' ', product_detail.model_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
+CONCAT(product_detail.category_name,'/',product_detail.model_name,' ', product_detail.specification_name,' ', product_detail.description_name,' ', product_detail.remark) as product_name,
 order_internal.hand_over_company as order_internal_hand_over_company,order_internal.receipt_company as order_internal_receipt_company,order_internal.hand_over_user as order_internal_hand_over_user,
 order_internal.receipt_user as order_internal_receipt_user,order_internal.add_subject as order_internal_add_subject,order_internal.subtract_subject as order_internal_subtract_subject,
 order_internal.store_id as order_internal_store_id,order_internal.order_type as order_internal_order_type,order_internal.oper_type as order_internal_oper_type,order_internal.remark as order_internal_remark,
@@ -73,6 +73,126 @@ order_internal_detail.total_fee as detail_total_fee, order_internal_detail.store
                 </foreach>
             </if>
         </where>
+        order by order_internal_detail.order_id desc ,order_internal_detail.internal_date desc
+    </select>
+    <select id="selectAddForStoreAccount" resultMap="com.bin.serverapi.product.mapper.ProductDetailMapper.SimpleResultMap" resultType="java.util.Map">
+        SELECT product_id as product_detail_id,SUM(CASE order_internal_detail.add_subject
+        WHEN 1 THEN
+		order_internal_detail.actual_num
+		ELSE
+		0 END) as subject1_num,SUM(CASE order_internal_detail.add_subject
+	    WHEN 2 THEN
+		order_internal_detail.actual_num
+	    ELSE
+		0 END) as subject2_num,SUM(CASE order_internal_detail.add_subject
+	    WHEN 3 THEN
+		order_internal_detail.actual_num
+	    ELSE
+		0 END) as subject3_num,SUM(CASE order_internal_detail.add_subject
+	    WHEN 4 THEN
+		order_internal_detail.actual_num
+	    ELSE
+		0 END) as subject4_num,SUM(CASE order_internal_detail.add_subject
+	    WHEN 5 THEN
+		order_internal_detail.actual_num
+	    ELSE
+		0 END) as subject5_num
+        FROM order_internal_detail
+        <where>${ew.sqlSegment}</where>
+        GROUP BY order_internal_detail.product_id
+    </select>
+    <select id="selectSubtractForStoreAccount" resultMap="com.bin.serverapi.product.mapper.ProductDetailMapper.SimpleResultMap" resultType="java.util.Map">
+        SELECT product_id as product_detail_id,SUM(CASE order_internal_detail.subtract_subject
+        WHEN 1 THEN
+		order_internal_detail.actual_num
+		ELSE
+		0 END) as subject1_num,SUM(CASE order_internal_detail.subtract_subject
+	    WHEN 2 THEN
+		order_internal_detail.actual_num
+	    ELSE
+		0 END) as subject2_num,SUM(CASE order_internal_detail.subtract_subject
+	    WHEN 3 THEN
+		order_internal_detail.actual_num
+	    ELSE
+		0 END) as subject3_num,SUM(CASE order_internal_detail.subtract_subject
+	    WHEN 4 THEN
+		order_internal_detail.actual_num
+	    ELSE
+		0 END) as subject4_num,SUM(CASE order_internal_detail.subtract_subject
+	    WHEN 5 THEN
+		order_internal_detail.actual_num
+	    ELSE
+		0 END) as subject5_num
+        FROM order_internal_detail
+        <where>${ew.sqlSegment}</where>
+        GROUP BY order_internal_detail.product_id
+    </select>
+    <select id="selectAddSubtractForStoreAccount" resultMap="com.bin.serverapi.product.mapper.ProductDetailMapper.SimpleResultMap" resultType="java.util.Map">
+        SELECT product_id as product_detail_id ,SUM(CASE
+	    WHEN order_internal_detail.add_subject = 1 THEN
+		actual_num
+	    ELSE
+		0
+        END) - SUM(CASE
+	    WHEN order_internal_detail.subtract_subject = 1 THEN
+		actual_num
+	    ELSE
+		0
+        END) as subject1_num,
+        SUM(CASE
+	    WHEN order_internal_detail.add_subject = 2 THEN
+		actual_num
+	    ELSE
+		0
+        END) - SUM(CASE
+	    WHEN order_internal_detail.subtract_subject = 2 THEN
+		actual_num
+	    ELSE
+		0
+        END) as subject2_num,
+        SUM(CASE
+	    WHEN order_internal_detail.add_subject = 3 THEN
+		actual_num
+	    ELSE
+		0
+        END) - SUM(CASE
+	    WHEN order_internal_detail.subtract_subject = 3 THEN
+		actual_num
+	    ELSE
+		0
+        END) as subject3_num,
+        SUM(CASE
+	    WHEN order_internal_detail.add_subject = 4 THEN
+		actual_num
+	    ELSE
+		0
+        END) - SUM(CASE
+	    WHEN order_internal_detail.subtract_subject = 4 THEN
+		actual_num
+	    ELSE
+		0
+        END) as subject4_num,
+        SUM(CASE
+	    WHEN order_internal_detail.add_subject = 5 THEN
+		actual_num
+	    ELSE
+		0
+        END) - SUM(CASE
+	    WHEN order_internal_detail.subtract_subject = 5 THEN
+		actual_num
+	    ELSE
+		0
+        END) as subject5_num
+        FROM order_internal_detail
+        <where>${ew.sqlSegment}</where>
+        GROUP BY product_id
+    </select>
+    <select id="selectWithOrderInternalToday" resultType="java.util.Map">
+        SELECT <include refid="Modify_Column_list"/>
+        FROM order_internal_detail
+        LEFT JOIN order_internal on order_internal_detail.order_id = order_internal.id
+        LEFT JOIN product_detail on order_internal_detail.product_id = product_detail.id
+        WHERE order_internal_detail.create_time BETWEEN DATE_FORMAT(NOW(),'%Y-%m-%d 00:00:00')  AND DATE_FORMAT(NOW(),'%Y-%m-%d 23:59:59')
         order by order_internal_detail.order_id desc ,order_internal_detail.internal_date desc
     </select>
 </mapper>
